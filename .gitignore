@@ -1,0 +1,9 @@
+#generated except source/configuration files
+*.txt
+*.xml
+*.gcp
+Ax_b.m
+
+#folders
+GeoTransform_Matlab/Figure
+GeoTransform_Matlab/Output_Files

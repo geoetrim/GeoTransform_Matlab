@@ -2,6 +2,7 @@
 *.txt
 *.xml
 *.gcp
+*.tif
 Ax_b.m
 
 #folders

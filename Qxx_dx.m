@@ -22,7 +22,7 @@ if (meta(10) == 0) ||  (meta(10) == 1) || (meta(10) == 5)
         Qxx = pivot_inv(A' * P * A + lamda * eye(size(A , 2)));
     elseif meta(10) == 5
         if j == 1; fprintf(fid,'Parameter estimation: Pseudo inverse \n\n'); end
-        Qxx = pinv(A' * P * A + lamda * eye(size(A , 2)));
+        Qxx = pinv(A' * P * A);
     end
     dx = Qxx * A' * P * l';
 end
@@ -37,7 +37,7 @@ elseif meta(10) == 6
     if j == 1; fprintf(fid,'Parameter estimation: SVD based solution by Dr. Orhan Kurt \n\n'); end
     [U , W , V] = svd(A' * P * A);
     Threshold = min(diag(W))-1e3
-    [dx , Qxx] = Ax_b(A' * P * A + lamda * eye(size(A , 2)), A' * P * l', Threshold);
+    [dx , Qxx] = Ax_b(A' * P * A, A' * P * l', Threshold);
 end
 
 if meta(10) == 4
@@ -50,5 +50,4 @@ elseif meta(10) == 8
     if j == 1; fprintf(fid, 'Parameter estimation: Cholesky decomposition \n\n'); end;
     dx = cholesky_ind(A' * P * A + lamda * eye(size(A , 2)), A' * P * l');
 end
-    Qxx = inv(A' * P * A + lamda * eye(size(A , 2)));
-    
+assignin('base','dx',dx)

@@ -3,7 +3,7 @@
 function meta = metaprog
 
 % Normalization: 0 - No, 1 - Normalize into ±1
-meta(1) = 0;
+meta(1) = 1;
 % Estimate total accuracy: 0 - No, 1 - Yes
 meta(2) = 0;
 % Save figures: 0 - No, 1 - Yes
@@ -30,7 +30,7 @@ meta(9) = 0;
 % 6 - SVD based solution by Dr. Orhan Kurt
 % 7 - Partial pivoting via Gauss
 % 8 - Cholesky decomposition
-meta(10) = 0;
+meta(10) = 5;
 % Remove unvalid parameters: 0 - No, 1 - Yes
 meta(11) = 0;
 assignin('base', 'meta', meta);

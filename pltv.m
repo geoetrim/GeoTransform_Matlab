@@ -26,12 +26,12 @@ if Sc > 0
     icp = evalin('base', 'icp');
     icp_id = int2str(icp(: , 1));
     display('Rescaling the coordinates for visual presentation!')
-    icp(: , 2) = icp(: , 2) / (31600 / 988);
-    icp(: , 3) = icp(: , 3) / (32356 / 1011);
+%     icp(: , 2) = icp(: , 2) / (31600 / 988);
+%     icp(: , 3) = icp(: , 3) / (32356 / 1011);
 end
 
-gcp(: , 2) = gcp(: , 2) / (31600 / 988);
-gcp(: , 3) = gcp(: , 3) / (32356 / 1011);
+% gcp(: , 2) = gcp(: , 2) / (31600 / 988);
+% gcp(: , 3) = gcp(: , 3) / (32356 / 1011);
 
 
 box on

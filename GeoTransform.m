@@ -4,7 +4,7 @@
 
 tic
 clear all; clc; close all;
-format long g
+format longEng
 
 %% Definition of some parameters
 meta = metaprog;

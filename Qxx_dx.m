@@ -2,16 +2,14 @@
 
 function [Qxx , dx , fid] = Qxx_dx(A, P, l, meta, fid, j)
 
-if j == 1
-    eig(A' * A)
-    pause
-    lamda = input('lamda: ');
-    assignin('base','lamda',lamda)
-end
-
-lamda = evalin('base','lamda');
-
-if (lamda ~= 0) && (j == 1); fprintf(fid, 'lamda = %3.15f \n', lamda); disp ('Attention! lamda is nonzero.'); end
+% if j == 1
+%     eig(A' * A)
+%     pause(1)
+    lamda = 0;% input('lamda: ');
+%     assignin('base','lamda',lamda)
+% end
+% lamda = evalin('base','lamda');
+% if (lamda ~= 0) && (j == 1); fprintf(fid, 'lamda = %3.15f \n', lamda); disp ('Attention! lamda is nonzero.'); end
 
 if (meta(10) == 0) ||  (meta(10) == 1) || (meta(10) == 5)
     if meta(10) == 0

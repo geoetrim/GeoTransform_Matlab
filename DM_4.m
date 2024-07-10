@@ -1,4 +1,4 @@
-% Design matrix for the scenario that b = d = and b1 = d1 = 1 (sdm = 4)
+% Design matrix in the case of b = d and b1 = d1 = 1 (sdm = 4)
 
 function [r, c, AA] = DM_4(gcp, rpc, Su, s)
 

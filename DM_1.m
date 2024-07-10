@@ -1,11 +1,10 @@
-% Design matrix for the scenario that all RPCs are different than each
-% other (sdm = 1)
+% Design matrix in the case of all RPCs are different than each other (sdm = 1)
 
 function [r, c, AA] = DM_1(gcp, rpc, Su, s)
 
-U = gcp(1); %Latitude
-V = gcp(2); %Longitude
-W = gcp(3); %Height
+U = gcp(1); %Latitude (b)
+V = gcp(2); %Longitude (l)
+W = gcp(3); %Height (h)
 %==========================================================================
 uvw(1, 1)  = 1;
 uvw(1, 2)  = V;

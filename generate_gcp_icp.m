@@ -8,8 +8,8 @@ for i = 1 : length(Sc)
 end
 
 %===== Line-number of ground points =====
-fg = [1 : length(points)];
-fg(:, fc)=[];
+fg = 1 : length(points);
+fg(: , fc)=[];
 
 %===== Creating the GCPs and ICPs =====
 for i = 1 : length(fg)

@@ -1,5 +1,4 @@
-% Design matrix for the scenario that all RPCs are different than each
-% other except b1 = d1 = 1 (sdm = 2)
+% Design matrix in the case of all RPCs are different than each other except b1 = d1 = 1 (sdm = 2)
 
 function [r, c, AA] = DM_2(gcp, rpc, Su, so)
 

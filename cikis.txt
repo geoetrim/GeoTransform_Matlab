@@ -1,0 +1,8 @@
+GeoTransform: Georeferencing via sensor dependent/independent orientation models 
+as a sub-tool of GeoEtrim, Zonguldak Bülent Ecevit University, June 2023, Zonguldak, Türkiye
+by Prof. Hüseyin TOPAN: Overall conception, workflow and coding by Matlab 
+by Mr. Ali CAM (MSc)  : Redesigning the codes between 2014-2017, and total accuracy approach 
+by Dr. Bilgi TERLEMEZOÐLU: Solving ill-conditioning problem 
+Visit github.com/geoetrim for more information 
+Date: 2024  7 11  1 15 49
+

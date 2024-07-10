@@ -1,23 +1,18 @@
  %Plot residual vectors
 
-function pltv(gcp, model_id)
+function pltv
 
-meta = evalin('base','meta');
-
-Sc = evalin('base','Sc');
-
-scale_gcp = input('Scale for GCPs: ');
-
-scale_icp = input('Scale for ICPs: ');
-
-sv = meta(3);%input('Save figures?          Y-> 1 N-> 2 : ');
-
-slc_im = meta(4);%input('Show GCP on image? Y-> 1 N-> 2 : ');
-
-slc_id = meta(5);%input('Show GCP id?       Y-> 1 N-> 2 : ');
+meta      = evalin('base','meta');
+gcp       = evalin('base','gcp');
+model_id  = evalin('base','model_id');
+Sc        = evalin('base','Sc');
+scale_gcp = input(' Scale for GCPs: ');
+scale_icp = input(' Scale for ICPs: ');
+sv        = meta(3);%input('Save figures?      Y-> 1 N-> 2 : ');
+slc_im    = meta(4);%input('Show GCP on image? Y-> 1 N-> 2 : ');
+slc_id    = meta(5);%input('Show GCP id?       Y-> 1 N-> 2 : ');
 
 figure
-
 hold on;
 
 gcp_id = int2str(gcp(: , 1));
@@ -25,24 +20,22 @@ gcp_id = int2str(gcp(: , 1));
 if Sc > 0
     icp = evalin('base', 'icp');
     icp_id = int2str(icp(: , 1));
-    display('Rescaling the coordinates for visual presentation!')
-%     icp(: , 2) = icp(: , 2) / (31600 / 988);
-%     icp(: , 3) = icp(: , 3) / (32356 / 1011);
+%     display('Rescaling the coordinates for visual presentation!')
+%     icp(: , 2) = icp(: , 2) / (20197 / 877);
+%     icp(: , 3) = icp(: , 3) / (23029 / 1000);
 end
 
-% gcp(: , 2) = gcp(: , 2) / (31600 / 988);
-% gcp(: , 3) = gcp(: , 3) / (32356 / 1011);
-
+% gcp(: , 2) = gcp(: , 2) / (20197 / 877);
+% gcp(: , 3) = gcp(: , 3) / (23029 / 1000);
 
 box on
 
 if slc_im == 1
-    [FileName,PathName] = uigetfile('.tif');
+    [FileName,PathName] = uigetfile('.');
     im = imread(fullfile(PathName,FileName));
     im_auto = imadjust(im(:,:,1));
     imshow(im_auto)
     hold on
-%     axis([0 23000 0 22000]);%Define the axis limits.
 end
 
 set(gca,'XGrid','off','YGrid','off');
@@ -70,7 +63,7 @@ elseif model_id > 30 && model_id < 36
     elseif meta(8) == 1
         title(sprintf('Polinom %1d^{0}', (model_id - 30)));
     end
-elseif model_id > 40 && model_id < 44
+elseif model_id > 40 && model_id < 45
     if meta(8) == 0
         title(sprintf('Affine projection model %1d', (model_id - 40)));
     elseif meta(8) == 1
@@ -116,7 +109,7 @@ if model_id < 80
 else
     hndl1_gcp = quiver(gcp(: , 3), gcp(: , 2), scale_gcp * (gcp(:, 19) - gcp(:, 3)), scale_gcp * (gcp(:, 18) - gcp(:, 2)), 0, 'o');
     if Sc > 0
-        hndl1_icp = quiver(icp(: , 3), icp(: , 2), scale_icp * (icp(:, 19) - icp(:, 3)), scale_icp * (icp(:, 18) - icp(:, 2)), 0, 'o');
+        hndl1_icp = quiver(icp(: , 3), icp(: , 2), scale_icp * (icp(:, 19) - icp(:, 3)), scale_icp * (icp(:, 18) - icp(:, 2)), 0, 'd');
     end
 end
 
@@ -126,14 +119,14 @@ set(hndl1_gcp,'Color','black');
 
 if Sc > 0
     set(hndl1_icp,'LineWidth', 1.5);
-    set(hndl1_icp,'MarkerSize', 6);
+    set(hndl1_icp,'MarkerSize', 8);
     set(hndl1_icp,'Color','black');
 end
 
 %% Showing the GCP-ICP ids
 if slc_id == 1
     for i = 1 : length(gcp(:,1))
-        text(gcp(i , 3), gcp(i , 2), gcp_id(i , :),'FontSize',7.5);
+        text(gcp(i , 3) + 20, gcp(i , 2), gcp_id(i , :),'FontSize',7.5);
     end
     if Sc > 0
         for i = 1 : length(icp(:,1))
@@ -144,34 +137,41 @@ end
 
 %% Drawing the vectoral scales
 % For GCPs
-% hndl2 = quiver(min(gcp(: , 3)) + 100, min(gcp(: , 2)) + 500, scale_gcp * 10, 0, 'o');
-hndl2 = quiver(3000, 5000, scale_gcp * 5, 0, 'o');
+hndl2 = quiver(200, 3000, scale_gcp * 5, 0, 'o');
 
 set(hndl2,'LineWidth', 1.5);
 set(hndl2,'MarkerSize', 2);
 set(hndl2,'Color','black');
 
-if meta(8) == 0
-    text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 500, '       5 pixel for GCPs','FontSize', 15);
-elseif meta(8) == 1
-    text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 500, '       5 piksel (YKN) (','FontSize', 15);
+if scale_gcp == scale_icp
+    if meta(8) == 0
+        text(500, 3000, '       5 pixels','FontSize', 15);
+    elseif meta(8) == 1
+        text(500, 5500, '       5 piksel','FontSize', 15);
+    end
+else
+    % For GCPs
+    if meta(8) == 0
+        text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 500, '       5 pixel for GCPs','FontSize', 15);
+    elseif meta(8) == 1
+        text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 500, '       5 piksel (YKN) (','FontSize', 15);
+    end
+    % For ICPs
+    hndl3 = quiver(min(gcp(: , 3)) + 100, min(gcp(: , 2)) + 1000, scale_icp * 1, 0, 'o');
+    set(hndl3,'LineWidth', 1.5);
+    set(hndl3,'MarkerSize', 2);
+    set(hndl3,'Color','black');
+    
+    if meta(8) == 0
+        text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 1000, '       5 pixel for ICPs','FontSize', 15);
+    elseif meta(8) == 1
+        text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 1000, '       5 piksel (BDN)','FontSize', 15);
+    end
 end
 
-% % For ICPs
-% hndl3 = quiver(min(gcp(: , 3)) + 100, min(gcp(: , 2)) + 1000, scale_icp * 1, 0, 'o');
-% set(hndl3,'LineWidth', 1.5);
-% set(hndl3,'MarkerSize', 2);
-% set(hndl3,'Color','black');
-% 
-% if meta(8) == 0
-%     text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 1000, '       1 pixel for ICPs','FontSize', 15);
-% elseif meta(8) == 1
-%     text(min(gcp(: , 3)) + 150, min(gcp(: , 2)) + 1000, '       1 piksel (BDN)','FontSize', 15);
-% end
-
-%% Show outlier points on figure
-if meta(9) == 1
-    ignored_point = evalin('base','ignored_point'); 
+%% Show ignored and/or outlier points on figure
+if meta(12) == 1
+    ignored_point = evalin('base','ignored_point');
     hold on 
     hndl3 = plot(ignored_point(: , 3),  ignored_point(: , 2),'X');
     set(hndl3,'LineWidth', 3);
@@ -183,30 +183,31 @@ end
 if sv == 1
     mkdir('Figure')
     file_name = sprintf('%1d.png', model_id);
-    move_file = sprintf('Figure/%1d.png', model_id);
+    move_file = sprintf('JILIN_Sekil/%1d.png', model_id);
     saveas(gcf, file_name);
     movefile(file_name, move_file) 
 end
 
 %% Combination of vector direction
 figure
-
 if model_id < 80
-    ac = compass(scale_gcp * (gcp(:, 15) - gcp(:, 3)), scale_gcp * (gcp(:, 14) - gcp(:, 2)));
+    ac_gcp = compass(scale_gcp * (gcp(:, 15) - gcp(:, 3)), scale_gcp * (gcp(:, 14) - gcp(:, 2)));
+    hold on
     if exist('icp') == 1
-        ac_icp = compass(scale_gcp * (icp(:, 15) - icp(:, 3)), scale_gcp * (icp(:, 14) - icp(:, 2)));
+        ac_icp = compass(scale_gcp * (icp(:, 15) - icp(:, 3)), scale_icp * (icp(:, 14) - icp(:, 2)));
     end
-else
-    ac = compass(scale_gcp * (gcp(:, 19) - gcp(:, 3)), scale_gcp * (gcp(:, 18) - gcp(:, 2)));
+elseif model_id >= 80
+    ac_gcp = compass(scale_gcp * (gcp(:, 19) - gcp(:, 3)), scale_gcp * (gcp(:, 18) - gcp(:, 2)));
+    hold on
     if exist('icp') == 1
-        ac_icp = compass(scale_gcp * (gcp(:, 19) - gcp(:, 3)), scale_gcp * (gcp(:, 18) - gcp(:, 2)));
+        ac_icp = compass(scale_gcp * (icp(:, 19) - icp(:, 3)), scale_icp * (icp(:, 18) - icp(:, 2)));
     end
 end
 
 hHiddenText = findall(gca,'type','text');
 set(gca,'XDir','normal','YDir','reverse');
 set(gca,'linewidth',2);
-% set(ac_icp,'LineStyle', dashed);
+set(ac_icp,'Color','red');
 Angles = 0 : 30 : 330;
 hObjToDelete = zeros( length(Angles)-4, 1 );
 k = 0;
@@ -248,7 +249,7 @@ delete( hObjToDelete(hObjToDelete~=0) );
 %% ===== Save figure =====
 if sv == 1
     file_name2 = sprintf('%1d_rose.png', model_id);
-    move_file2 = sprintf('Figure/%1d_rose.png', model_id);
+    move_file2 = sprintf('JILIN_Sekil/%1d_rose.png', model_id);
     saveas(gcf, file_name2);
     movefile(file_name2, move_file2)
 end

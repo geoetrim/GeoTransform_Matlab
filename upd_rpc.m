@@ -1,9 +1,13 @@
-% Updating sensor based RPCs
+% Updating sensor dependent RPCs
 
-function [gcp, fid] = upd_rpc(gcp, rpc, fid)
+function upd_rpc
 
-Sc = select_icp;
+gcp  = evalin('base','gcp');
+meta = evalin('base','meta');
+fid  = evalin('base','fid');
+rpc  = evalin('base','rpc');
 
+Sc  = select_icp;
 if Sc > 0
     icp = evalin('base', 'icp');
 end
@@ -11,10 +15,8 @@ end
 % Weight matrix
 P = wght(gcp, fid);
 
-meta = evalin('base','meta'); 
-
 %===== Selection of RPCs and UVWs =====
-[sdm, fid] = rpc_cond(rpc, fid); %Defining the denominator
+[sdm, fid] = rpc_cond(rpc, fid); %Defining the RPC type w.r.t. the denominator
 [Sr, Su, so, fid] = Srpc(2 * length(gcp(: , 1)), sdm, fid);
 rpc_s = rpc(Sr); %Selected RPCs
 
@@ -74,6 +76,7 @@ for j = 1 : 10
        assignin('base','A_icp',A_icp)
     end
     
+    %Updating the RPCs
     rpc_s = rpc_s + dx;
     
     % Normalized residuals in an iteration (not the final version)
@@ -205,6 +208,7 @@ if Sc > 0
 end
 
 % Save in workspace
+assignin('base','gcp', gcp);
 assignin('base','vn', vn_gcp);
 assignin('base','Px', rpc);
 assignin('base','Kdpdp', Kdpdp);
@@ -213,3 +217,4 @@ assignin('base','v', v_gcp);
 assignin('base','A', A_gcp);
 assignin('base','vx', vrn_gcp);
 assignin('base','vy', vcn_gcp);
+assignin('base','fid', fid);

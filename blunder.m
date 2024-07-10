@@ -133,4 +133,3 @@ for i = 1 : length(gcp(: , 1))
     end
 end
 fprintf(fid,'\n');
-fprintf(fid,'Total GCP number: %3d \n\n', length(gcp(: , 1))); 

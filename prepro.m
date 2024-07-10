@@ -1,8 +1,13 @@
-% Preprocessing of coordinates of GCPs and DEM
+% Preprocessing coordinates of points and DEM
 
-function [gcp, fid] = prepro(points, model_id, fid)
+function prepro(ni)
 
-meta = evalin('base','meta'); 
+fid      = evalin('base','fid');
+meta     = evalin('base','meta');
+points   = evalin('base','points');
+model_id = evalin('base','model_id');
+number_images = evalin('base','number_images');
+
 %% ===== Replacement of columns of latitude and longitude for sensor dependent RFM =====
 % if model_id > 80 
 %     for i = 0 : 1
@@ -18,19 +23,18 @@ meta = evalin('base','meta');
 %     gcp(: , 4 : 5) = g_rfm;
 % end
 
-%% ===== Normalisation =====
+%% ===== Normalisation except sensor dependent RFM =====
 if model_id < 80
     % Normalisation
     for i = 2 : length(points(1 , :))
         for j = 1 : length(points(: , 1))
             if meta(1) == 0 % Keep original without normalisation
-                points(j , i + 5) = points(j , i);
-            elseif meta(1) == 1 % Normalize into ±1
-                points(j , i + 5) = ((2 *  points(j , i) - max(points(: , i)) - min(points(: , i))) / (max(points(: , i)) - min(points(: , i))));
+                points(j , i + 5 , ni) = points(j , i , ni);
+            elseif meta(1) == 1% Normalize into ±1
+                points(j , i + 5 , ni) = ((2 *  points(j , i , ni) - max(points(: , i , ni)) - min(points(: , i , ni))) / (max(points(: , i , ni)) - min(points(: , i , ni))));
             end
         end
     end
-    
     % DEM normalisation 
     if meta(2) == 1 % DEM available
         gdem = evalin('base','gdem');        
@@ -45,57 +49,52 @@ if model_id < 80
         end
         assignin('base','gdem',gdem);
     end
-    
 else %Normalization for sensor dependent RFM
     rpc = evalin('base','rpc');
     for i = 1 : 5
-        points (:, i + 6) = (points(:, i + 1) - rpc(i)) / rpc(i + 5);
+        points (: , i + 6 , ni) = (points(: , i + 1 , ni) - rpc(i , ni)) / rpc(i + 5 , ni);
     end
     %% ===== Bias compensation by Teo =====
     % ===== Estimated line and column by RPCs =====
-    for i = 1 : length(points(: , 1))
-        [points(i, 12 : 13)] = rc(points(i, 9 : 11), rpc);
+    for i = 1 : length(points(: , 1 , ni))
+        [points(i, 12 : 13 , ni)] = rc_rpc(points(i, 9 : 11 , ni), rpc(: , ni));
     end
     for i = 1 : 2
-        stdb (:, i) = sqrt(((points(:, i + 6) - points(:, i + 11))' * (points(:, i + 6) - points(:, i + 11))) / length(points(: , 1))) * rpc(i + 6);
+        stdb (:, i) = sqrt(((points(:, i + 6 , ni) - points(:, i + 11 , ni))' * (points(:, i + 6 , ni) - points(:, i + 11 , ni))) / length(points(: , 1 , ni))) * rpc(i + 6 , ni);
     end
-    fprintf(fid, 'Standard devition in bias: %5.2f pixel\n\n', sqrt(stdb * stdb'));
+    fprintf(fid, '%1d. Standard devition in bias: %5.2f pixel\n\n', ni, sqrt(stdb * stdb'));
 
     % ===== Compensation models =====
-    [points(:, 14 : 15), fid] = bias_compensation(points, rpc, fid);
+    [points(:, 14 : 15 , ni), fid] = bias_compensation(points(: , : , ni), rpc(: , ni), fid, ni);
 end
-
 %% ===== Loading of GCPs to be ignored =====
 if meta(9) == 1
-% Sng = [18 21 24 25 32 35 37 45 51 52 55 60 63 65 66 74 78 79 85 94 117 122 183 185 218 227 263];%input('GCP ID to be ignored. exp. [427 526 258]: ');
-% Sng = [18 21 24 25 32 35 37 45 51 52 55 60 63 65 66 74 78 79 85 94 117 122 183 185 218 227 263 512 518];
-Sng = [];
-    for i = 1 : length(Sng)
-        del_rc = find(points(: , 1)  == Sng(i));
-        ignored_point(i , :) = points(del_rc , :);
-        points(del_rc(1) , :) = [];
-    end
-    
-    assignin('base','ignored_point',ignored_point);
-    fprintf(fid,'Point ID ignored in the GCP file: \n\n');
-    
-    for i = 1 : length(Sng)
-        str_Sng = num2str(Sng(i));
-        sz_Sng = size(str_Sng);
-        c = {'%'; sz_Sng(1 , 2); 'd'};
-        prnt = sprintf('%s%d%s ', c{:});
-        fprintf(fid, prnt, Sng(i));
-    end
-    fprintf(fid, '\n\n');
+Sip = ignored_points;
+    display(' Ignored points are being removed from the point list.')
+    pause(1)
+        if ni == number_images
+            points = remove_ignored_point(Sip, points, fid);
+            assignin('base', 'points', points)
+        end
 end
-
 %===== GCP-ICP separation =====
 Sc = select_icp;
+if ni > 1 %Loading GCP and ICP for the second image.
+    gcp = evalin('base','gcp');
+    if Sc > 0
+        icp = evalin('base','icp');
+    end
+end
+
 if Sc > 0
-    [gcp, icp] = generate_gcp_icp(points, Sc);
-    assignin('base','icp',icp);
+    [gcp(: , : , ni), icp(: , : , ni)] = generate_gcp_icp(points(: , : , ni), Sc);
 else
-    gcp = points;
+    gcp(: , : , ni) = points(: , : , ni);
+end
+
+assignin('base','gcp',gcp)
+if Sc > 0
+    assignin('base','icp',icp)
 end
 
 % % % 269

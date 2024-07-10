@@ -1,16 +1,19 @@
 % Adjustment for sensor independent orientation models in GeoTransform
 % Developed by Ali CAM & Hüseyin TOPAN (alicam193@gmail.com, topan@beun.edu.tr)
-% Zonguldak Bülent Ecevit University, Zonguldak, Turkey, February 2018
-% www.geoetrim.org
+% Zonguldak Bülent Ecevit University, Zonguldak, Turkey, June 2023
+% github.com/geoetrim
 
-function [gcp, model_id, fid] = adj(gcp, model_id, fid)
+function adj
 
-Sc = select_icp;
+Sc   = select_icp;
+fid  = evalin('base','fid');
+meta = evalin('base','meta');
+gcp  = evalin('base','gcp');
+icp  = evalin('base','icp');
+model_id = evalin('base','model_id');
 
 % Weight matrix
-P = wght(gcp, fid);
-
-meta = evalin('base','meta');
+P = wght(gcp(: , :), fid);
 
 % Define iteration limit
 if model_id == 5 || model_id == 6 || model_id >= 70
@@ -26,17 +29,16 @@ for j = 1 : nj
             icp = evalin('base','icp');
             icp(: , 12 : 13) = icp(: , 7 : 8);
         end
-        lo_gcp(length(gcp(:, 1)) , 2) = 0; % Defination of miscloser at 1st iteration as zero (0).
+        lo_gcp(length(gcp(: , 1)) , 2) = 0; % Defination of miscloser at 1st iteration as zero (0).
         if Sc > 0
-            lo_icp(length(icp(:, 1)) , 2) = 0; % Defination of miscloser at 1st iteration as zero (0).
+            lo_icp(length(icp(: , 1)) , 2) = 0; % Defination of miscloser at 1st iteration as zero (0).
         end
     end
     
-    A_gcp = Jacobo(gcp, model_id);
+    A_gcp = Jacobo(gcp(: , :), model_id);
     if Sc > 0
-        A_icp = Jacobo(icp, model_id);
+        A_icp = Jacobo(icp(: , :), model_id);
     end
-%     assignin('base','A',A);
     
     % Remove unvalid coefficients
     if meta (11) == 1
@@ -50,12 +52,14 @@ for j = 1 : nj
     end
 
     % Estimate miscloser in a vector form
+    l_gcp = 0;
     for i = 1 : length(gcp(: , 1))
         l_gcp (2 * i - 1) = gcp (i , 12) - lo_gcp(i , 1);
         l_gcp (2 * i)     = gcp (i , 13) - lo_gcp(i , 2);
     end
     
     if Sc > 0
+        l_icp = 0;
         for i = 1 : length(icp(: , 1))
             l_icp (2 * i - 1) = icp (i , 12) - lo_icp(i , 1);
             l_icp (2 * i)     = icp (i , 13) - lo_icp(i , 2);
@@ -96,8 +100,8 @@ for j = 1 : nj
         end
     end
 
-    gcp (: , 12) = gcp(: , 12) + vrn_gcp';
-    gcp (: , 13) = gcp(: , 13) + vcn_gcp';
+    gcp(: , 12) = gcp(: , 12) + vrn_gcp';
+    gcp(: , 13) = gcp(: , 13) + vcn_gcp';
     
     if Sc > 0
         icp (: , 12) = icp(: , 12) + vrn_icp';
@@ -116,7 +120,6 @@ for j = 1 : nj
     if Sc > 0
         mon_icp = sqrt((vd_icp(: , 1)' * vd_icp(: , 1) + vd_icp(: , 2)' * vd_icp(: , 2)) / (2 * length(icp(: , 1)) - 1));
     end
-    
 %     assignin('base','mon',mon_gcp)
 %     assignin('base','mon',mon_icp)
     
@@ -134,6 +137,7 @@ for j = 1 : nj
             end
         end
     end
+    assignin('base','gcp',gcp);
     
     v_gcp = gcp(: , 14 : 15) - gcp(: , 2 : 3);
     if Sc > 0
@@ -187,8 +191,10 @@ end
 fid = par_valid (A_gcp, dx, Qxx, mon_gcp, fid);
 
 % Blunder test
-fid = blunder(gcp, vn_gcp, dx, A_gcp, fid, mon_gcp, P, Qxx, mo_gcp(j) / mon_gcp);
+fid = blunder(gcp(: , :), vn_gcp, dx, A_gcp, fid, mon_gcp, P, Qxx, mo_gcp(j) / mon_gcp);
 
+fprintf(fid, 'Total GCP number: %3d \n', length(gcp(: , 1)));
+fprintf(fid, 'Total ICP number: %3d \n\n', length(icp(: , 1))); 
 fprintf(fid, 'Total iteration: %3d \n\n', j);
 fprintf(fid, 'Accuracies for GCPs\n');
 fprintf(fid, 'mr = ± %5.3f pixel\n',   mr_gcp);

@@ -1,4 +1,4 @@
-%Checking the condition of RPCs
+%Checking the condition of RPCs w.r.t the denominator
 % [a1...d20]              -> 80 RPCs -> sdm = 1 -> General condition
 % b1 = d1 = 1             -> 78 RPCs -> sdm = 2 -> QuickBird
 % b = d and b1 ~= 1       -> 60 RPCs -> sdm = 3 -> OrbView-3

@@ -5,7 +5,7 @@ function [gdem, fid] = total_accuracy(Px, model_id, fid)
 
 Kdpdp = evalin('base','Kdpdp');
 gcp   = evalin('base','gcp');
-gdem2  = evalin('base','gdem');
+gdem2 = evalin('base','gdem');
 meta  = evalin('base','meta');
 dem_quality = load('dem_quality.txt');
 GSD_original_image  = 2.5;

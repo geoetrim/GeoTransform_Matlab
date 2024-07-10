@@ -20,14 +20,14 @@ Point file except sensor dependent RFM
 
 ===========================================================================
 
-GCP file for sensor dependent RFM
+Point file for sensor dependent RFM
 
  1 nn <= input values
  2 r  <= input values (line)
  3 c  <= input values (column)
- 4 b  <= input values 
- 5 l  <= input values
- 6 H  <= input values
+ 4 b  <= input values (latitude)
+ 5 l  <= input values (longitude)
+ 6 H  <= input values (elipsoidal height)
  7 r  <= line    (normalized)
  8 c  <= column  (normalized)
  9 U  <= latitude(normalized)
@@ -41,6 +41,9 @@ GCP file for sensor dependent RFM
 17 c  <= column  (adjusted)
 18 r  <= line    (compensated and renormalized)
 19 c  <= column  (compensated and renormalized)
+20 U  <= latitude(estimated from stereo images)
+21 V  <= long.   (estimated from stereo images)
+22 W  <= height  (estimated from stereo images)
 
 ===========================================================================
 
@@ -78,6 +81,6 @@ Model selection (s)
 42: AP for OrbView-3
 43: AP for IKONOS & QuickBird
     
-7X: Xth except sensor dependent RFM of degree
-8X: Xth sensor dependent RFM of degree
+7X: Xth except sensor dependent RFM
+8X: Xth sensor dependent RFM
 
